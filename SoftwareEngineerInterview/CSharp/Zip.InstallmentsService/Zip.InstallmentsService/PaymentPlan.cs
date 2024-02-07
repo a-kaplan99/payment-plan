@@ -17,7 +17,7 @@ namespace Zip.InstallmentsService
 
         private int NumInstallments = 4;
 
-        private int Frequency = 14; // in days
+        private int Frequency = 21; // in days
 
         public PaymentPlan(decimal purchaseAmount) {
             Id = Guid.NewGuid();
@@ -29,11 +29,16 @@ namespace Zip.InstallmentsService
         private void GenerateInstallments()
         {
             var now = DateTime.Today;
-            var amountPerInstallment = PurchaseAmount / NumInstallments;
+            var amountPerInstallment = Math.Round(PurchaseAmount / NumInstallments, 2, MidpointRounding.ToZero);
+            decimal remainder = PurchaseAmount % (amountPerInstallment * NumInstallments);
+
             for (int i = 0; i < NumInstallments; i++)
             {
                 now = now.AddDays(Frequency);
-                Installments[i] = new Installment(amountPerInstallment, now);
+
+                Installments[i] = i == 0 
+                    ? new Installment(amountPerInstallment + remainder, now) // For first installment, add remainder lost during division
+                    : new Installment(amountPerInstallment, now);
             }
         }
     }

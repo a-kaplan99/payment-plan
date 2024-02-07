@@ -40,9 +40,9 @@ namespace Zip.InstallmentsService.Test
         {
             // Arrange
             var paymentPlanFactory = new PaymentPlanFactory();
-            var expectedAmount = 123.45M;
+            var expectedAmount = 200M;
             var expecedNumInstallments = 4;
-            var expectedFrequency = 14;
+            var expectedFrequency = 21;
 
             // Act
             var paymentPlan = PaymentPlanFactory.CreatePaymentPlan(expectedAmount);
@@ -51,13 +51,13 @@ namespace Zip.InstallmentsService.Test
             paymentPlan.ShouldNotBeNull();
             paymentPlan.PurchaseAmount.ShouldBe(expectedAmount);
             paymentPlan.Installments.Length.ShouldBe(expecedNumInstallments);
+            paymentPlan.Installments.Sum(i  => i.Amount).ShouldBe(expectedAmount);
 
             // Assert Installments
             var now = DateTime.Today;
             for (var i = 1; i <= expecedNumInstallments; i++)
             {
                 var installment = paymentPlan.Installments[i - 1];
-                installment.Amount.ShouldBe(expectedAmount / expecedNumInstallments);
                 installment.DueDate.ShouldBe(now.AddDays(expectedFrequency * i));
             }
         }
